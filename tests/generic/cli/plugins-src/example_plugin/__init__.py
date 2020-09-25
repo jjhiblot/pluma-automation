@@ -1,2 +1,2 @@
-from .mytests import Hello
+from . import mytests
 print('hello from module init')
