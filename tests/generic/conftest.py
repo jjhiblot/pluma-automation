@@ -17,13 +17,12 @@ from utils import OsFile
 from pluma import Board, SerialConsole, SoftPower, SSHConsole
 from pluma.core.baseclasses import ConsoleBase
 from pluma.core.dataclasses import SystemContext, Credentials
-from pluma.core.mocks import ConsoleMock
 from pluma import __main__
 
 
 @fixture
 def soft_power():
-    mock_console = MagicMock(ConsoleMock())
+    mock_console = MagicMock(ConsoleBase())
 
     return SoftPower(
         console=mock_console,
