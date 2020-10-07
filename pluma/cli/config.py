@@ -5,6 +5,7 @@ import os
 from pluma.core.baseclasses import Logger
 from abc import ABC, abstractmethod
 from .configpreprocessor import ConfigPreprocessor
+from .yamlextensions import YamlExtendedLoader
 
 log = Logger()
 
@@ -128,10 +129,14 @@ class PlumaConfig:
         try:
             with open(yaml_file_path, 'r') as config:
                 content = config.read()
-                if preprocessor:
-                    content = preprocessor.preprocess(content)
 
-                return yaml.load(content, Loader=yaml.FullLoader)
+                loader = YamlExtendedLoader(content=content,
+                                            _root=os.path.dirname(
+                                                yaml_file_path),
+                                            preprocessor=preprocessor)
+                obj = loader.get_single_data()
+                loader.dispose()
+                return obj
         except FileNotFoundError as e:
             raise ConfigurationError(
                 f'{name} "{yaml_file_path}" does not exist') from e
