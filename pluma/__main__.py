@@ -6,6 +6,7 @@ from typing import Any, Callable, Optional
 from .core.baseclasses import Logger, LogMode, LogLevel
 from .cli import Pluma, TestsConfigError, TestsBuildError, TargetConfigError
 from .cli.plugins import load_plugin_modules
+from .cli.includepaths import IncludePaths
 
 log = Logger()
 
@@ -63,6 +64,9 @@ def parse_arguments():
         '-f', '--force', action='store_const', const=True,
         help='force operation instead of prompting')
     parser.add_argument(
+        '-i', '--include_path', default=[], action='append', nargs=1,
+        help='include path')
+    parser.add_argument(
         '--silent', action='store_const', const=True,
         help='silence all output')
     parser.add_argument(
@@ -92,6 +96,8 @@ def main():
     set_log_mode(args)
     tests_config_path = args.config
     target_config_path = args.target
+    for i in [y for x in args.include_path for y in x]:
+        IncludePaths.add(i)
 
     if args.plugin:
         for plugin_dir in args.plugin:
