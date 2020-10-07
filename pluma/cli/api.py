@@ -11,6 +11,7 @@ from pluma.cli import PythonTestsProvider, ShellTestsProvider, CTestsProvider, \
 from pkg_resources import get_distribution
 
 from .configpreprocessor import PlumaConfigPreprocessor
+from .configpreprocessor import PCPP
 
 log = Logger()
 
@@ -82,8 +83,7 @@ class Pluma:
     def create_target_context(target_config_path: str) -> PlumaContext:
         env_vars = Pluma.vars_from_env()
         log.debug(f'Parsing target configuration "{target_config_path}"...')
-        target_config = PlumaConfig.load_configuration('Target config', target_config_path,
-                                                       PlumaConfigPreprocessor(env_vars))
+        target_config = PlumaConfig.load_configuration('Target config', target_config_path,PlumaConfigPreprocessor(env_vars) + PCPP(env_vars))
         context = TargetConfig.create_context(target_config)
         context.variables.update(env_vars)
         return context

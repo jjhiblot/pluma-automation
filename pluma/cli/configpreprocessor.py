@@ -1,14 +1,15 @@
 import re
 
+import io
 from os import path
 from .includepaths import IncludePaths
 from abc import ABC, abstractmethod
 from pluma.core.baseclasses import Logger
-
+import pcpp.preprocessor
 
 class ConfigPreprocessor(ABC):
     @abstractmethod
-    def preprocess(self, raw_config: str) -> str:
+    def preprocess(self, raw_config: str, source = None) -> str:
         '''Return an updated configuration from raw text'''
         pass
 
@@ -28,15 +29,31 @@ class ConfigPreprocessorPipe(ConfigPreprocessor):
     def __init__(self, cpps: list = None):
         self.cpps = cpps
 
-    def preprocess(self, raw_config: str) -> str:
+    def preprocess(self, raw_config: str, source = None) -> str:
         s = raw_config
         for cpp in self.cpps:
-            s = cpp.preprocess(s)
+            s = cpp.preprocess(s, source)
         return s
 
 
 log = Logger()
 
+class PCPP(ConfigPreprocessor):
+    def __init__(self, defines = {}):
+        self.pcpp = pcpp.preprocessor.Preprocessor()
+        self.pcpp.auto_pragma_once_enabled = False
+        self.pcpp.compress = 2
+        for k,v in defines.items():
+            self.pcpp.define(k+' '+v)
+        for p in IncludePaths.paths:
+            self.pcpp.add_path(p)
+        pass
+
+    def preprocess(self, raw_config: str, source = None) -> str:
+        self.pcpp.parse(raw_config, source)
+        s = io.StringIO()
+        self.pcpp.write(s)
+        return s.getvalue()
 
 class PlumaConfigPreprocessor(ConfigPreprocessor):
     def __init__(self, variables: dict):
@@ -44,7 +61,7 @@ class PlumaConfigPreprocessor(ConfigPreprocessor):
         if not isinstance(self.variables, dict):
             raise ValueError('Variables must be a dictionary')
 
-    def preprocess(self, raw_config: str) -> str:
+    def preprocess(self, raw_config: str, source = None) -> str:
         def token_to_variable(token):
             '''remove "${" and "}" '''
             return token[2:len(token)-2]
