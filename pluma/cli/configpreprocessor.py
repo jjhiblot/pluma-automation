@@ -15,10 +15,10 @@ class PlumaConfigPreprocessor(ConfigPreprocessor):
     def preprocess(self, raw_config: str) -> str:
         def token_to_variable(token):
             '''remove "${" and "}" '''
-            return token[2:len(token)-1]
+            return token[2:len(token)-2]
 
         missing_variables = []
-        vars_found = re.findall(r'\${\w+}', raw_config, flags=re.MULTILINE)
+        vars_found = re.findall(r'{{\w+}}', raw_config, flags=re.MULTILINE)
         unique_vars = set(map(token_to_variable, vars_found))
         vars_found = map(token_to_variable, vars_found)
 
@@ -32,8 +32,8 @@ class PlumaConfigPreprocessor(ConfigPreprocessor):
                             f'{missing_variables}')
 
         for variable in unique_vars:
-            log.debug(f'${{{variable}}}={self.variables[variable]}')
-            raw_config = re.sub(r'\${'+variable+'}', self.variables[variable],
+            log.debug(f'{{{{{variable}}}}}={self.variables[variable]}')
+            raw_config = re.sub(r'{{'+variable+'}}', self.variables[variable],
                                 raw_config)
 
         return raw_config
