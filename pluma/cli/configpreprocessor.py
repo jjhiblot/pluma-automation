@@ -1,7 +1,39 @@
 import re
 
-from .config import ConfigPreprocessor
+from os import path
+from .includepaths import IncludePaths
+from abc import ABC, abstractmethod
 from pluma.core.baseclasses import Logger
+
+
+class ConfigPreprocessor(ABC):
+    @abstractmethod
+    def preprocess(self, raw_config: str) -> str:
+        '''Return an updated configuration from raw text'''
+        pass
+
+    def __add__(a, b):
+        if isinstance(a, ConfigPreprocessorPipe):
+            l = a.cpps
+        else:
+            l = [a]
+        if isinstance(b, ConfigPreprocessorPipe):
+            l = l + b.cpps
+        else:
+            l = l + [b]
+        return ConfigPreprocessorPipe(l)
+
+
+class ConfigPreprocessorPipe(ConfigPreprocessor):
+    def __init__(self, cpps: list = None):
+        self.cpps = cpps
+
+    def preprocess(self, raw_config: str) -> str:
+        s = raw_config
+        for cpp in self.cpps:
+            s = cpp.preprocess(s)
+        return s
+
 
 log = Logger()
 
