@@ -38,6 +38,56 @@ class ConfigPreprocessorPipe(ConfigPreprocessor):
 log = Logger()
 
 
+class IncludePreprocessorError(Exception):
+    pass
+
+
+class IncludePreprocessor(ConfigPreprocessor):
+    def __init__(self, cwd: str = None):
+        self.regex = [re.compile('!include "(\S*)"(.*)'),
+                      re.compile('!include (\S*)(.*)')]
+        self.cwd = cwd
+
+    def preprocess_lines(self, cwd: str, lines: list) -> list:
+        out = []
+        lines = [x.rstrip() for x in lines]
+        for l in lines:
+            if l.startswith('!include '):
+                m = None
+                for r in self.regex:
+                    m = r.match(l)
+                    if m:
+                        break
+                if not m:
+                    raise IncludePreprocessorError(f'syntax error {l}. (missing " "  ?)')
+                if m.group(2):
+                    raise IncludePreprocessorError(f'syntax error {l}. too many tokens')
+                if not m.group(1):
+                    raise IncludePreprocessorError(f'syntax error {l}. (Must give a file)')
+
+                yaml_file = IncludePaths.locate(
+                    filename=m.group(1), current_dir=cwd)
+                if not yaml_file:
+                    raise IncludePreprocessorError(f'file not found {m.group(1)}.')
+                try:
+                    f = open(yaml_file, 'r')
+                except FileNotFoundError as e:
+                    raise IncludePreprocessorError(
+                        f'{yaml_file} does not exist') from e
+                except Exception as e:
+                    raise IncludePreprocessorError(
+                        f'Cannot open {yaml_file}') from e
+
+                out.extend(self.preprocess_lines(
+                    path.dirname(yaml_file), f.readlines()))
+            else:
+                out.append(l)
+        return out
+
+    def preprocess(self, raw_config: str) -> str:
+        return '\n'.join(self.preprocess_lines(self.cwd, raw_config.splitlines()))
+
+
 class PlumaConfigPreprocessor(ConfigPreprocessor):
     def __init__(self, variables: dict):
         self.variables = variables or {}

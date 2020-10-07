@@ -11,6 +11,7 @@ from pluma.cli import PythonTestsProvider, ShellTestsProvider, CTestsProvider, \
 from pkg_resources import get_distribution
 
 from .configpreprocessor import PlumaConfigPreprocessor
+from .configpreprocessor import IncludePreprocessor
 
 log = Logger()
 
@@ -75,7 +76,7 @@ class Pluma:
         env_vars = dict(os.environ)
         log.debug(f'Parsing target configuration "{target_config_path}"...')
         target_config = PlumaConfig.load_configuration('Target config', target_config_path,
-                                                       PlumaConfigPreprocessor(env_vars))
+                                                       PlumaConfigPreprocessor(env_vars) + IncludePreprocessor())
         context = TargetConfig.create_context(target_config)
         context.variables.update(env_vars)
         return context
