@@ -71,8 +71,16 @@ class Pluma:
         TestsBuilder.clean(force)
 
     @staticmethod
+    def vars_from_env():
+        ret = dict()
+        for k,v in os.environ.items():
+            if k.startswith("PLUMA_"):
+                ret[k[6:]]=v
+        return ret
+
+    @staticmethod
     def create_target_context(target_config_path: str) -> PlumaContext:
-        env_vars = dict(os.environ)
+        env_vars = Pluma.vars_from_env()
         log.debug(f'Parsing target configuration "{target_config_path}"...')
         target_config = PlumaConfig.load_configuration('Target config', target_config_path,
                                                        PlumaConfigPreprocessor(env_vars))
