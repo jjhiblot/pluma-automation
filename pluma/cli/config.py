@@ -52,9 +52,9 @@ class Configuration:
         if len(self) > 0:
             unconsumed_data = self.config
             self.config = {}
-            raise ConfigurationError(
-                'The following configuration attributes were not recognized or not used:'
-                f'{os.linesep}{unconsumed_data}')
+            #raise ConfigurationError(
+                #'The following configuration attributes were not recognized or not used:'
+                #f'{os.linesep}{unconsumed_data}')
 
     def content(self):
         return self.config
