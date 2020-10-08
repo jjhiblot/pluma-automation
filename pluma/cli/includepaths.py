@@ -21,3 +21,17 @@ class IncludePaths():
             if path.exists(p):
                 return p
         return None
+
+    @staticmethod
+    def locateall(filename: str, current_dir: str = None) -> str:
+        result = []
+        if path.isabs(filename):
+            return filename
+        l = [current_dir] if current_dir else []
+        if IncludePaths.paths:
+            l.extend(IncludePaths.paths)
+        for d in l:
+            p = path.join(d, filename)
+            if path.exists(p):
+                result.append(p)
+        return result
