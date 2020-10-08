@@ -1295,6 +1295,8 @@ class Preprocessor(PreprocessorHooks):
                             oldfile = self.macros['__FILE__'] if '__FILE__' in self.macros else None
                             for tok in self.include(args):
                                 yield tok
+                            for tok in self.include(args, True):
+                                yield tok
                             if oldfile is not None:
                                 self.macros['__FILE__'] = oldfile
                             self.source = abssource
@@ -1506,7 +1508,7 @@ class Preprocessor(PreprocessorHooks):
     # Implementation of file-inclusion
     # ----------------------------------------------------------------------
 
-    def include(self,tokens):
+    def include(self,tokens, yaml_append = False):
         """Implementation of file-inclusion"""
         # Try to extract the filename and then process an include file
         if not tokens:
@@ -1539,6 +1541,8 @@ class Preprocessor(PreprocessorHooks):
                 return
         if not path:
             path = ['']
+        if yaml_append:
+            filename += "_append"
         while True:
             #print path
             for p in path:
@@ -1563,9 +1567,12 @@ class Preprocessor(PreprocessorHooks):
                 except IOError:
                     pass
             else:
-                p = self.on_include_not_found(is_system_include,self.temp_path[0] if self.temp_path else '',filename)
-                assert p is not None
-                path.append(p)
+                if not yaml_append:
+                    p = self.on_include_not_found(is_system_include,self.temp_path[0] if self.temp_path else '',filename)
+                    assert p is not None
+                    path.append(p)
+                else:
+                    return
 
     # ----------------------------------------------------------------------
     # define()
