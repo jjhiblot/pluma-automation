@@ -933,6 +933,16 @@ class Preprocessor(PreprocessorHooks):
                                 e.expanded_from = []
                             e.expanded_from.append(t.value)
                         tokens[i:i+1] = ex
+
+                        j = i + 1
+                        while (tokens[j].value == "##" or tokens[j].value == "#"):
+                            del tokens[j];
+                            j += 1
+
+                        j = i-1
+                        while (tokens[j].value == "##" or tokens[j].value == "#"):
+                            del tokens[j];
+                            j -= 1
                     else:
                         # A macro with arguments
                         j = i + 1
