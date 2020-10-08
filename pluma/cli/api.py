@@ -1,3 +1,4 @@
+import yaml
 import sys
 import time
 import os
@@ -43,6 +44,23 @@ class Pluma:
                     level=LogLevel.IMPORTANT, color='red', bold=True)
 
         return success
+
+    @staticmethod
+    def debug_yaml(tests_config_path: str, target_config_path: str):
+        '''Execute the "tests" command, listing all tests.'''
+        env_vars = Pluma.vars_from_env()
+        target_config = PlumaConfig.load_configuration('Target config', target_config_path,PlumaConfigPreprocessor(env_vars) + PCPP(env_vars))
+        print("--------------------------------------")
+        print("---- Target configuration ------------")
+        print("--------------------------------------")
+        print(yaml.dump(target_config))
+        context = Pluma.create_target_context(target_config_path)
+        tests_config = PlumaConfig.load_configuration('Tests config', tests_config_path,
+                                                      PlumaConfigPreprocessor(context.variables))
+        print("--------------------------------------")
+        print("---- Tests configuration -------------")
+        print("--------------------------------------")
+        print(yaml.dump(tests_config))
 
     @staticmethod
     def execute_tests(tests_config_path: str, target_config_path: str):

@@ -12,10 +12,11 @@ log = Logger()
 
 RUN_COMMAND = 'run'
 CHECK_COMMAND = 'check'
+DEBUGYAML_COMMAND = 'debugyaml'
 TESTS_COMMAND = 'tests'
 CLEAN_COMMAND = 'clean'
 VERSION_COMMAND = 'version'
-COMMANDS = [RUN_COMMAND, CHECK_COMMAND,
+COMMANDS = [RUN_COMMAND, CHECK_COMMAND, DEBUGYAML_COMMAND,
             TESTS_COMMAND, CLEAN_COMMAND, VERSION_COMMAND]
 
 
@@ -39,6 +40,7 @@ def parse_arguments():
         description='A lightweight automated testing tool for embedded devices.')
     parser.add_argument('command', type=str, nargs='?', choices=COMMANDS, default=RUN_COMMAND,
                         help=f'command for pluma, defaults to "{RUN_COMMAND}". "{RUN_COMMAND}": Run the tests suite, '
+                        f'"{DEBUGYAML_COMMAND}": output preprocessed yaml files'
                         f'"{CHECK_COMMAND}": validate configuration files and tests, '
                         f'"{TESTS_COMMAND}": list all tests available and selected, '
                         f'"{CLEAN_COMMAND}": remove logs, toolchains, and built executables')
@@ -117,6 +119,8 @@ def main():
             Pluma.execute_clean(args.force)
         elif command == VERSION_COMMAND:
             log.log(Pluma.version(), level=LogLevel.IMPORTANT)
+        elif command == DEBUGYAML_COMMAND:
+            Pluma.debug_yaml(tests_config_path, target_config_path)
     except TestsConfigError as e:
         log.error(
             f'Error while parsing the tests configuration ({tests_config_path}):{os.linesep}  {e}')
