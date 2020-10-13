@@ -8,6 +8,7 @@ from .targetconfig import TargetConfig, TargetFactory, Credentials
 from .pythontestsprovider import PythonTestsProvider
 from .shelltestsprovider import ShellTestsProvider
 from .ctestsprovider import CTestsProvider
+from .extendedymlprovider import ExtendedYmlProvider
 from .deviceactionbase import DeviceActionBase
 from .deviceactionregistry import DeviceActionRegistry
 from .deviceactions import LoginAction, PowerOnAction, PowerOffAction, PowerCycleAction, WaitAction, \

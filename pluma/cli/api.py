@@ -9,7 +9,7 @@ from pluma.test import TestController
 from pluma.cli import PlumaContext, PlumaConfig, TestsConfig, TestsBuilder, TargetConfig
 from pluma.cli import TestsBuildError
 from pluma.cli import PythonTestsProvider, ShellTestsProvider, CTestsProvider, \
-    DeviceActionProvider
+    DeviceActionProvider, ExtendedYmlProvider
 from pkg_resources import get_distribution
 
 from .configpreprocessor import PlumaConfigPreprocessor
@@ -24,7 +24,7 @@ class Pluma:
     @staticmethod
     def tests_providers() -> list:
         return [PythonTestsProvider(), ShellTestsProvider(),
-                CTestsProvider(), DeviceActionProvider()]
+                CTestsProvider(), DeviceActionProvider(), ExtendedYmlProvider()]
 
     @staticmethod
     def execute_run(tests_config_path: str, target_config_path: str,
